@@ -14,11 +14,14 @@
 
         <p>Results count: <span data-bind="text: data().length"></span></p>
 
+        <div data-bind="component: { name: 'simple-bootstrap-data-grid' }"></div>
+
     </div>
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="node_modules/knockout/build/output/knockout-latest.debug.js"></script>
+    <script src="ko-datagrid-component.js"></script>
     <script src="viewmodel.js"></script>
     
     <script>
