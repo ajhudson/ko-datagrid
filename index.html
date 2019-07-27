@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Knockout sorting experiment</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        .center { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Experimental Data Grid using Knockout</h2>
+
+        <p>Results count: <span data-bind="text: data().length"></span></p>
+
+    </div>
+
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="node_modules/knockout/build/output/knockout-latest.debug.js"></script>
+    <script src="viewmodel.js"></script>
+    
+    <script>
+        $(function() {
+            var vm = new ViewModel();
+            ko.applyBindings(vm);
+        })
+    </script>
+
+</body>
+</html>
