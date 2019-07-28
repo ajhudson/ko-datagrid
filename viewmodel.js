@@ -24,7 +24,10 @@ function ViewModel() {
         new Person(14, "Igor", "Stimac", "Zagreb", "Croatia")
     ]);
 
+    var pageSize = ko.observable(4);
+
     return {
-        data: people
+        data: people,
+        pageSize: pageSize
     }
 }

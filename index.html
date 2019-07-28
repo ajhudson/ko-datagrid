@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Knockout sorting experiment</title>
+    <title>Knockout grid</title>
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <style>
         .center { text-align: center; }
@@ -14,7 +14,10 @@
 
         <p>Results count: <span data-bind="text: data().length"></span></p>
 
-        <div data-bind="component: { name: 'simple-bootstrap-data-grid' }"></div>
+        <div data-bind="component: { name: 'simple-bootstrap-data-grid', params: {
+            data: data,
+            pageSize: pageSize
+        } }"></div>
 
     </div>
 
