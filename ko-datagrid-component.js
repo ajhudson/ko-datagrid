@@ -7,6 +7,8 @@ function SimpleBootstrapDataGridViewModel(params) {
     self.currentPage = ko.observable(1);
     var sortBy = ko.observable("");
     var sortIsDescending = ko.observable(false);
+
+    var columnHeadings = getColumnHeadings();
     
     self.maxPages = ko.computed(function() {
         return Math.round(gridData().length / pageSize());
@@ -28,6 +30,10 @@ function SimpleBootstrapDataGridViewModel(params) {
         }
 
         return pages;
+    });
+
+    var columnWidth = ko.computed(function() {
+        return Math.round(100 / columnHeadings.length).toString() + "%";
     });
 
     if (!gridData().length) {
@@ -58,7 +64,6 @@ function SimpleBootstrapDataGridViewModel(params) {
         }
     }
 
-    var columnHeadings = getColumnHeadings();
 
     function getColumnHeadings() {
         var firstRow = gridData()[0];
@@ -97,7 +102,8 @@ function SimpleBootstrapDataGridViewModel(params) {
         gotoPage: gotoPage,
         resortByColumnName: resortByColumnName,
         sortBy: sortBy,
-        sortIsDescending: sortIsDescending
+        sortIsDescending: sortIsDescending,
+        columnWidth: columnWidth
     }
 }
 
@@ -112,7 +118,9 @@ var simpleBootstrapDataGridComponent = {
                 <table class="table">\
                     <thead>\
                         <tr data-bind="foreach: columnHeadings">\
-                            <th><a href="#" data-bind="text: $data, click: function() { $parent.resortByColumnName($data); }, attr: { \'data-columnid\': $data }"></a></th>\
+                            <th data-bind="attr: { width: $parent.columnWidth }">\
+                                <a href="#" data-bind="text: $data, click: function() { $parent.resortByColumnName($data); }, attr: { \'data-columnid\': $data }"></a>\
+                            </th>\
                         </tr>\
                     </thead>\
                     <tbody data-bind="foreach: { data: gridData, as: \'gridData\' }">\
