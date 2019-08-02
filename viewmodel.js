@@ -24,10 +24,16 @@ function ViewModel() {
         new Person(14, "Igor", "Stimac", "Zagreb", "Croatia")
     ]);
 
-    var pageSize = ko.observable(4);
+    var defaultPageSize = ko.observable(4);
+    var pageSizeOptions = [];
+
+    for (var i = 0; i < people().length; i++) {
+        pageSizeOptions.push(i + 1);
+    }
 
     return {
         data: people,
-        pageSize: pageSize
+        defaultPageSize: defaultPageSize,
+        pageSizeOptions: pageSizeOptions
     }
 }

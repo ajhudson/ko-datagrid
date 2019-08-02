@@ -7,11 +7,10 @@ function SimpleBootstrapDataGridViewModel(params) {
     self.currentPage = ko.observable(1);
     var sortBy = ko.observable("");
     var sortIsDescending = ko.observable(false);
-
     var columnHeadings = getColumnHeadings();
     
     self.maxPages = ko.computed(function() {
-        return Math.round(gridData().length / pageSize());
+        return Math.ceil(gridData().length / pageSize());
     });
 
     self.startRow = ko.computed(function() {
@@ -33,7 +32,7 @@ function SimpleBootstrapDataGridViewModel(params) {
     });
 
     var columnWidth = ko.computed(function() {
-        return Math.round(100 / columnHeadings.length).toString() + "%";
+        return Math.ceil(100 / columnHeadings.length).toString() + "%";
     });
 
     if (!gridData().length) {
@@ -46,8 +45,8 @@ function SimpleBootstrapDataGridViewModel(params) {
 
     var resortByColumnName = function(columnName) {
 
-        var x = $(cssId).find("table > thead > tr > th > a ~ span[class^='glyphicon glyphicon-sort-by-attributes']").remove();
-        console.log(x.length);
+        var marginLeftSetting = 5;
+        $(cssId).find("table > thead > tr > th > a ~ span[class^='glyphicon glyphicon-sort-by-attributes']").remove();
         var el = $(cssId).find("table > thead > tr > th > a[data-columnid='" + columnName + "']");
 
         if (columnName === sortBy()) {
@@ -55,12 +54,12 @@ function SimpleBootstrapDataGridViewModel(params) {
             sortData(columnName, !isDescending);
             sortIsDescending(!isDescending);
             var sortingGlyphicon = "glyphicon glyphicon-sort-by-attributes" +  (sortIsDescending() ? "-alt" : "");
-            el.after("<span class='" + sortingGlyphicon + "'></span>");
+            el.after("<span class='" + sortingGlyphicon + "' style='margin-left: " + marginLeftSetting + "px;'></span>");
         } else {
             sortData(columnName, false);
             sortBy(columnName);
             sortIsDescending(false);
-            el.after("<span class='glyphicon glyphicon-sort-by-attributes'></span>");
+            el.after("<span class='glyphicon glyphicon-sort-by-attributes' style='margin-left: " + marginLeftSetting + "px;'></span>");
         }
     }
 
@@ -115,6 +114,7 @@ var simpleBootstrapDataGridComponent = {
             <div class="row">\
                 <p>Start row: <span data-bind="text: startRow"></span>. End row: <span data-bind="text: endRow"></span></p>\
                 <p>Sorted by: <span data-bind="text: sortBy().length ? sortBy : \'N/A\'"></span> (<span data-bind="text: sortIsDescending() === true? \'descending\' : \'ascending\'"></span>)</p>\
+                <p>Maximum pages: <span data-bind="text: maxPages"></p>\
                 <table class="table">\
                     <thead>\
                         <tr data-bind="foreach: columnHeadings">\

@@ -12,12 +12,19 @@
     <div class="container">
         <h2>Experimental Data Grid using Knockout</h2>
 
-        <p>Results count: <span data-bind="text: data().length"></span></p>
-
+        <div class="row" style="float: right;">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="pageSize">Page Size</label>
+                    <select id="pageSize" class="form-control" data-bind="options: pageSizeOptions, value: defaultPageSize"></select>
+                </div>
+            </form>
+        </div>
+        
         <div data-bind="component: { name: 'simple-bootstrap-data-grid', params: {
             id: 'data-grid-1',
             data: data,
-            pageSize: pageSize
+            pageSize: defaultPageSize
         } }"></div>
 
     </div>
