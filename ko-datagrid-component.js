@@ -1,5 +1,7 @@
 function SimpleBootstrapDataGridViewModel(params) {
     var self = this;
+    var id = params.id;
+    var cssId = "#" + id;
     var gridData = params.hasOwnProperty("data") ? params.data : {};
     var pageSize = params.hasOwnProperty("pageSize") ? params.pageSize : data().length;
     self.currentPage = ko.observable(1);
@@ -38,14 +40,21 @@ function SimpleBootstrapDataGridViewModel(params) {
 
     var resortByColumnName = function(columnName) {
 
+        var x = $(cssId).find("table > thead > tr > th > a ~ span[class^='glyphicon glyphicon-sort-by-attributes']").remove();
+        console.log(x.length);
+        var el = $(cssId).find("table > thead > tr > th > a[data-columnid='" + columnName + "']");
+
         if (columnName === sortBy()) {
             var isDescending = sortIsDescending();
             sortData(columnName, !isDescending);
             sortIsDescending(!isDescending);
+            var sortingGlyphicon = "glyphicon glyphicon-sort-by-attributes" +  (sortIsDescending() ? "-alt" : "");
+            el.after("<span class='" + sortingGlyphicon + "'></span>");
         } else {
             sortData(columnName, false);
             sortBy(columnName);
             sortIsDescending(false);
+            el.after("<span class='glyphicon glyphicon-sort-by-attributes'></span>");
         }
     }
 
@@ -77,6 +86,7 @@ function SimpleBootstrapDataGridViewModel(params) {
     }
 
     return {
+        id: id,
         columnHeadings: columnHeadings,
         gridData: gridData,
         currentPage: self.currentPage,
@@ -95,14 +105,14 @@ var simpleBootstrapDataGridComponent = {
     viewModel: SimpleBootstrapDataGridViewModel,
     template:
         '\
-        <div class="container">\
+        <div class="container" data-bind="attr: { id: id }">\
             <div class="row">\
                 <p>Start row: <span data-bind="text: startRow"></span>. End row: <span data-bind="text: endRow"></span></p>\
                 <p>Sorted by: <span data-bind="text: sortBy().length ? sortBy : \'N/A\'"></span> (<span data-bind="text: sortIsDescending() === true? \'descending\' : \'ascending\'"></span>)</p>\
                 <table class="table">\
                     <thead>\
                         <tr data-bind="foreach: columnHeadings">\
-                            <th><a href="#" data-bind="text: $data, click: function() { $parent.resortByColumnName($data); }"></a></th>\
+                            <th><a href="#" data-bind="text: $data, click: function() { $parent.resortByColumnName($data); }, attr: { \'data-columnid\': $data }"></a></th>\
                         </tr>\
                     </thead>\
                     <tbody data-bind="foreach: { data: gridData, as: \'gridData\' }">\
