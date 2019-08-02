@@ -1,95 +1,97 @@
-ko.components.register('simple-bootstrap-data-grid', {
-    viewModel: function(params) {
-        var gridData = params.hasOwnProperty("data") ? params.data : {};
-        var pageSize = params.hasOwnProperty("pageSize") ? params.pageSize : data().length;
-        var currentPage = ko.observable(1);
-        var sortBy = ko.observable("");
-        var sortIsDescending = ko.observable(false);
+function SimpleBootstrapDataGridViewModel(params) {
+    var gridData = params.hasOwnProperty("data") ? params.data : {};
+    var pageSize = params.hasOwnProperty("pageSize") ? params.pageSize : data().length;
+    var currentPage = ko.observable(1);
+    var sortBy = ko.observable("");
+    var sortIsDescending = ko.observable(false);
+    
+    var maxPages = ko.computed(function() {
+        return Math.round(gridData().length / pageSize());
+    });
+
+    var startRow = ko.computed(function() {
+        return (currentPage() * pageSize()) - pageSize();
+    });
+
+    var endRow = ko.computed(function() {
+        return (startRow() + pageSize()) - 1;
+    });
+
+    var listOfPageNumbers = ko.computed(function() {
         
-        var maxPages = ko.computed(function() {
-            return Math.round(gridData().length / pageSize());
-        });
+        var pages = [];
+        for (var i = 0; i < maxPages(); i++) {
+            pages.push(i + 1);
+        }
 
-        var startRow = ko.computed(function() {
-            return (currentPage() * pageSize()) - pageSize();
-        });
+        return pages;
+    });
 
-        var endRow = ko.computed(function() {
-            return (startRow() + pageSize()) - 1;
-        });
+    if (!gridData().length) {
+        return;
+    }
 
-        var listOfPageNumbers = ko.computed(function() {
-            
-            var pages = [];
-            for (var i = 0; i < maxPages(); i++) {
-                pages.push(i + 1);
+    var gotoPage = function(requestedPage) {
+        currentPage(requestedPage);
+    }
+
+    var resortByColumnName = function(columnName) {
+
+        if (columnName === sortBy()) {
+            var isDescending = sortIsDescending();
+            sortData(columnName, !isDescending);
+            sortIsDescending(!isDescending);
+        } else {
+            sortData(columnName, false);
+            sortBy(columnName);
+            sortIsDescending(false);
+        }
+    }
+
+    var columnHeadings = getColumnHeadings();
+
+    function getColumnHeadings() {
+        var firstRow = gridData()[0];
+        var cols = [];
+
+        for (var c in firstRow) {
+            cols.push(c);
+        }
+
+        return cols;
+    }
+
+    function sortData(propertyName, isDescending) {
+        return gridData.sort(function (a, b) {
+            if (a[propertyName] === b[propertyName]) {
+                return 0;
             }
-
-            return pages;
+    
+            if (a[propertyName] < b[propertyName]) {
+                return isDescending ? 1 : -1;
+            }
+    
+            return isDescending ? -1 : 1;
         });
+    }
 
-        if (!gridData().length) {
-            return;
-        }
+    return {
+        columnHeadings: columnHeadings,
+        gridData: gridData,
+        currentPage: currentPage,
+        maxPages: maxPages,
+        startRow: startRow,
+        endRow: endRow,
+        listOfPageNumbers: listOfPageNumbers,
+        gotoPage: gotoPage,
+        resortByColumnName: resortByColumnName,
+        sortBy: sortBy,
+        sortIsDescending: sortIsDescending
+    }
+}
 
-        var gotoPage = function(requestedPage) {
-            currentPage(requestedPage);
-        }
-
-        var resortByColumnName = function(columnName) {
-
-            if (columnName === sortBy()) {
-                var isDescending = sortIsDescending();
-                sortData(columnName, !isDescending);
-                sortIsDescending(!isDescending);
-            } else {
-                sortData(columnName, false);
-                sortBy(columnName);
-                sortIsDescending(false);
-            }
-        }
-
-        var columnHeadings = getColumnHeadings();
-
-        function getColumnHeadings() {
-            var firstRow = gridData()[0];
-            var cols = [];
-
-            for (var c in firstRow) {
-                cols.push(c);
-            }
-
-            return cols;
-        }
-
-        function sortData(propertyName, isDescending) {
-            return gridData.sort(function (a, b) {
-                if (a[propertyName] === b[propertyName]) {
-                    return 0;
-                }
-        
-                if (a[propertyName] < b[propertyName]) {
-                    return isDescending ? 1 : -1;
-                }
-        
-                return isDescending ? -1 : 1;
-            });
-        }
-
-        return {
-            columnHeadings: columnHeadings,
-            gridData: gridData,
-            currentPage: currentPage,
-            maxPages: maxPages,
-            startRow: startRow,
-            endRow: endRow,
-            listOfPageNumbers: listOfPageNumbers,
-            gotoPage: gotoPage,
-            resortByColumnName: resortByColumnName,
-            sortBy: sortBy,
-            sortIsDescending: sortIsDescending
-        }
-    },
+var simpleBootstrapDataGridComponent = {
+    viewModel: SimpleBootstrapDataGridViewModel,
     template:
         '\
         <div class="container">\
@@ -121,4 +123,6 @@ ko.components.register('simple-bootstrap-data-grid', {
             </div>\
         </div>\
         '
-})
+};
+
+ko.components.register('simple-bootstrap-data-grid', simpleBootstrapDataGridComponent);
