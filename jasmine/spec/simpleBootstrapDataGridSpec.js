@@ -7,7 +7,7 @@ describe("SimpleBootstrapDataGrid", function() {
         this.country = country;
     }
 
-    var testData = ko.observableArray([
+    var testData = [
         new Person(1, "Hasan", "Kasamali", "Mumbai", "India"),
         new Person(2, "James", "McCollom", "Bury", "UK"),
         new Person(3, "Ben", "Stokes", "Wellington", "New Zealand"),
@@ -22,10 +22,10 @@ describe("SimpleBootstrapDataGrid", function() {
         new Person(12, "Eden", "Hazard", "Antwerp", "Belgium"),
         new Person(13, "David", "Beckham", "Miami", "USA"),
         new Person(14, "Igor", "Stimac", "Zagreb", "Croatia")
-    ]); 
+    ]; 
 
     var params = {
-        data: ko.observable([]),
+        data: ko.observableArray(testData),
         pageSize: ko.observable(5)
     };
 
@@ -34,15 +34,16 @@ describe("SimpleBootstrapDataGrid", function() {
     beforeEach(function() {
         datagrid = new SimpleBootstrapDataGridViewModel(params);
     });
-
+    
     it("current page is equal to 1 when the grid is first loaded", function() {        
         expect(datagrid.currentPage()).toEqual(1);
     });
-
-    it("maxPages is equal to 3", function() {
-        console.log(datagrid);
-        
-        //expect(datagrid.maxPages()).toEqual(3);
+    
+    it("maxPages should be equal to 3 when first loaded", function() {
+        expect(datagrid.maxPages()).toEqual(3);
     });
 
+    it("start row should be 0 when first loaded", function() {
+        expect(datagrid.startRow()).toEqual(0);
+    });
 })

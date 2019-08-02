@@ -1,26 +1,27 @@
 function SimpleBootstrapDataGridViewModel(params) {
+    var self = this;
     var gridData = params.hasOwnProperty("data") ? params.data : {};
     var pageSize = params.hasOwnProperty("pageSize") ? params.pageSize : data().length;
-    var currentPage = ko.observable(1);
+    self.currentPage = ko.observable(1);
     var sortBy = ko.observable("");
     var sortIsDescending = ko.observable(false);
     
-    var maxPages = ko.computed(function() {
+    self.maxPages = ko.computed(function() {
         return Math.round(gridData().length / pageSize());
     });
 
-    var startRow = ko.computed(function() {
-        return (currentPage() * pageSize()) - pageSize();
+    self.startRow = ko.computed(function() {
+        return (self.currentPage() * pageSize()) - pageSize();
     });
 
     var endRow = ko.computed(function() {
-        return (startRow() + pageSize()) - 1;
+        return (self.startRow() + pageSize()) - 1;
     });
 
     var listOfPageNumbers = ko.computed(function() {
         
         var pages = [];
-        for (var i = 0; i < maxPages(); i++) {
+        for (var i = 0; i < self.maxPages(); i++) {
             pages.push(i + 1);
         }
 
@@ -32,7 +33,7 @@ function SimpleBootstrapDataGridViewModel(params) {
     }
 
     var gotoPage = function(requestedPage) {
-        currentPage(requestedPage);
+        self.currentPage(requestedPage);
     }
 
     var resortByColumnName = function(columnName) {
@@ -78,9 +79,9 @@ function SimpleBootstrapDataGridViewModel(params) {
     return {
         columnHeadings: columnHeadings,
         gridData: gridData,
-        currentPage: currentPage,
-        maxPages: maxPages,
-        startRow: startRow,
+        currentPage: self.currentPage,
+        maxPages: self.maxPages,
+        startRow: self.startRow,
         endRow: endRow,
         listOfPageNumbers: listOfPageNumbers,
         gotoPage: gotoPage,
