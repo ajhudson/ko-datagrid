@@ -17,11 +17,7 @@ describe("SimpleBootstrapDataGrid", function() {
         new Person(7, "Bruno", "Garcia", "Rio de Janiero", "Brazil"),
         new Person(8, "Brad", "Haddin", "Melbourne", "Austrailia"),
         new Person(9, "Penelope", "Cruz", "Madrid", "Spain"),
-        new Person(10, "Shigaru", "Miamoto", "Tokyo", "Japan"),
-        new Person(11, "Marcel", "Desailly", "Paris", "France"),
-        new Person(12, "Eden", "Hazard", "Antwerp", "Belgium"),
-        new Person(13, "David", "Beckham", "Miami", "USA"),
-        new Person(14, "Igor", "Stimac", "Zagreb", "Croatia")
+        new Person(10, "Shigaru", "Miamoto", "Tokyo", "Japan")
     ]; 
 
     var params = {
@@ -39,11 +35,50 @@ describe("SimpleBootstrapDataGrid", function() {
         expect(datagrid.currentPage()).toEqual(1);
     });
     
-    it("maxPages should be equal to 3 when first loaded", function() {
-        expect(datagrid.maxPages()).toEqual(3);
+    it("maxPages should be equal to 2 when first loaded", function() {
+        expect(datagrid.maxPages()).toEqual(2);
     });
 
     it("start row should be 0 when first loaded", function() {
         expect(datagrid.startRow()).toEqual(0);
+    });
+
+    it("range should be 1...4,5,6...10 if there are 10 pages", function() {
+
+        var params = {
+            data: ko.observableArray(testData),
+            pageSize: ko.observable(1)
+        };
+
+        var dg = new SimpleBootstrapDataGridViewModel(params);
+        dg.gotoPage(5)
+        var result = dg.dynamicPaginationRange();
+
+        console.log(result);
+
+        expect(result[0]).toEqual("1");
+        expect(result[1]).toEqual("...");
+        expect(result[2]).toEqual("4");
+        expect(result[3]).toEqual("5");
+        expect(result[4]).toEqual("6");
+        expect(result[5]).toEqual("...");
+        expect(result[6]).toEqual("10");
+    });
+
+    it("range should be 1,2,3...10 if current page is 1", function() {
+        var params = {
+            data: ko.observableArray(testData),
+            pageSize: ko.observable(1)
+        };
+
+        var dg = new SimpleBootstrapDataGridViewModel(params);
+        dg.gotoPage(5)
+        var result = dg.dynamicPaginationRange();
+
+        expect(result[0]).toEqual("1");
+        expect(result[1]).toEqual("2");
+        expect(result[2]).toEqual("3");
+        expect(result[3]).toEqual("...");
+        expect(result[4]).toEqual("10");
     });
 })

@@ -4,6 +4,7 @@ function SimpleBootstrapDataGridViewModel(params) {
     var cssId = "#" + id;
     var gridData = params.hasOwnProperty("data") ? params.data : {};
     var pageSize = params.hasOwnProperty("pageSize") ? params.pageSize : data().length;
+    var friendlyColumnHeadings = params.hasOwnProperty("columnNames") ? params.columnNames : [];
     self.currentPage = ko.observable(1);
     var sortBy = ko.observable("");
     var sortIsDescending = ko.observable(false);
@@ -21,8 +22,11 @@ function SimpleBootstrapDataGridViewModel(params) {
         return (self.startRow() + pageSize()) - 1;
     });
 
+    var showPagination = ko.computed(function() {
+        return pageSize() < gridData().length;
+    });
+
     var listOfPageNumbers = ko.computed(function() {
-        
         var pages = [];
         for (var i = 0; i < self.maxPages(); i++) {
             pages.push(i + 1);
@@ -30,6 +34,10 @@ function SimpleBootstrapDataGridViewModel(params) {
 
         return pages;
     });
+
+    var getFriendlyColumnNameByIndex = function(index) {
+        return friendlyColumnHeadings[ko.utils.unwrapObservable(index)];
+    }
 
     var columnWidth = ko.computed(function() {
         return Math.ceil(100 / columnHeadings.length).toString() + "%";
@@ -39,12 +47,11 @@ function SimpleBootstrapDataGridViewModel(params) {
         return;
     }
 
-    var gotoPage = function(requestedPage) {
+    self.gotoPage = function(requestedPage) {
         self.currentPage(requestedPage);
     }
 
     var resortByColumnName = function(columnName) {
-
         var marginLeftSetting = 5;
         $(cssId).find("table > thead > tr > th > a ~ span[class^='glyphicon glyphicon-sort-by-attributes']").remove();
         var el = $(cssId).find("table > thead > tr > th > a[data-columnid='" + columnName + "']");
@@ -62,7 +69,6 @@ function SimpleBootstrapDataGridViewModel(params) {
             el.after("<span class='glyphicon glyphicon-sort-by-attributes' style='margin-left: " + marginLeftSetting + "px;'></span>");
         }
     }
-
 
     function getColumnHeadings() {
         var firstRow = gridData()[0];
@@ -92,17 +98,21 @@ function SimpleBootstrapDataGridViewModel(params) {
     return {
         id: id,
         columnHeadings: columnHeadings,
+        friendlyColumnHeadings: friendlyColumnHeadings,
+        getFriendlyColumnNameByIndex: getFriendlyColumnNameByIndex,
         gridData: gridData,
         currentPage: self.currentPage,
         maxPages: self.maxPages,
         startRow: self.startRow,
         endRow: endRow,
         listOfPageNumbers: listOfPageNumbers,
-        gotoPage: gotoPage,
+        gotoPage: self.gotoPage,
         resortByColumnName: resortByColumnName,
         sortBy: sortBy,
         sortIsDescending: sortIsDescending,
-        columnWidth: columnWidth
+        columnWidth: columnWidth,
+        showPagination: showPagination,
+        dynamicPaginationRange: self.dynamicPaginationRange
     }
 }
 
@@ -114,12 +124,13 @@ var simpleBootstrapDataGridComponent = {
             <div class="row">\
                 <p>Start row: <span data-bind="text: startRow"></span>. End row: <span data-bind="text: endRow"></span></p>\
                 <p>Sorted by: <span data-bind="text: sortBy().length ? sortBy : \'N/A\'"></span> (<span data-bind="text: sortIsDescending() === true? \'descending\' : \'ascending\'"></span>)</p>\
-                <p>Maximum pages: <span data-bind="text: maxPages"></p>\
+                <p>Maximum pages: <span data-bind="text: maxPages"></span></p>\
+                <p>Show pagination: <span data-bind="text: showPagination"></span> </p>\
                 <table class="table">\
                     <thead>\
                         <tr data-bind="foreach: columnHeadings">\
                             <th data-bind="attr: { width: $parent.columnWidth }">\
-                                <a href="#" data-bind="text: $data, click: function() { $parent.resortByColumnName($data); }, attr: { \'data-columnid\': $data }"></a>\
+                                <a href="#" data-bind="text: $parent.getFriendlyColumnNameByIndex($index), click: function() { $parent.resortByColumnName($data); }, attr: { \'data-columnid\': $data }"></a>\
                             </th>\
                         </tr>\
                     </thead>\
@@ -132,7 +143,7 @@ var simpleBootstrapDataGridComponent = {
                     </tbody>\
                 </table>\
             </div>\
-            <div class="row center">\
+            <div class="row center" data-bind="visible: showPagination">\
                 <ul class="pagination" data-bind="foreach: listOfPageNumbers">\
                     <li data-bind="css: { \'active\': $parent.currentPage() == $data }">\
                         <a href="#" data-bind="text: $data, click: function() { $parent.gotoPage($data); }"></a><li>\

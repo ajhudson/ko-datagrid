@@ -1,7 +1,7 @@
-function Person(id, firstname, surname, city, country) {
+function Person(id, firstName, lastName, city, country) {
     this.id = id;
-    this.firstname = firstname;
-    this.surname = surname;
+    this.firstName = firstName;
+    this.lastName = lastName;
     this.city = city;
     this.country = country;
 }
@@ -24,6 +24,8 @@ function ViewModel() {
         new Person(14, "Igor", "Stimac", "Zagreb", "Croatia")
     ]);
 
+    var columnNames = ["ID", "First Name", "Surname", "City", "Country"];
+
     var defaultPageSize = ko.observable(4);
     var pageSizeOptions = [];
 
@@ -33,6 +35,7 @@ function ViewModel() {
 
     return {
         data: people,
+        columnNames: columnNames,
         defaultPageSize: defaultPageSize,
         pageSizeOptions: pageSizeOptions
     }
