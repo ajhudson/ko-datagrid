@@ -26,7 +26,7 @@ function ViewModel() {
 
     var columnNames = ["ID", "First Name", "Surname", "City", "Country"];
 
-    var defaultPageSize = ko.observable(4);
+    var defaultPageSize = ko.observable(2);
     var pageSizeOptions = [];
 
     for (var i = 0; i < people().length; i++) {

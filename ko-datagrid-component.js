@@ -5,21 +5,21 @@ function SimpleBootstrapDataGridViewModel(params) {
     var gridData = params.hasOwnProperty("data") ? params.data : {};
     var pageSize = params.hasOwnProperty("pageSize") ? params.pageSize : data().length;
     var friendlyColumnHeadings = params.hasOwnProperty("columnNames") ? params.columnNames : [];
-    self.currentPage = ko.observable(1);
+    var currentPage = ko.observable(1);
     var sortBy = ko.observable("");
     var sortIsDescending = ko.observable(false);
     var columnHeadings = getColumnHeadings();
     
-    self.maxPages = ko.computed(function() {
+    var maxPages = ko.computed(function() {
         return Math.ceil(gridData().length / pageSize());
     });
 
-    self.startRow = ko.computed(function() {
-        return (self.currentPage() * pageSize()) - pageSize();
+    var startRow = ko.computed(function() {
+        return (currentPage() * pageSize()) - pageSize();
     });
 
     var endRow = ko.computed(function() {
-        return (self.startRow() + pageSize()) - 1;
+        return (startRow() + pageSize()) - 1;
     });
 
     var showPagination = ko.computed(function() {
@@ -28,7 +28,7 @@ function SimpleBootstrapDataGridViewModel(params) {
 
     var listOfPageNumbers = ko.computed(function() {
         var pages = [];
-        for (var i = 0; i < self.maxPages(); i++) {
+        for (var i = 0; i < maxPages(); i++) {
             pages.push(i + 1);
         }
 
@@ -47,8 +47,8 @@ function SimpleBootstrapDataGridViewModel(params) {
         return;
     }
 
-    self.gotoPage = function(requestedPage) {
-        self.currentPage(requestedPage);
+    var gotoPage = function(requestedPage) {
+        currentPage(requestedPage);
     }
 
     var resortByColumnName = function(columnName) {
@@ -69,6 +69,48 @@ function SimpleBootstrapDataGridViewModel(params) {
             el.after("<span class='glyphicon glyphicon-sort-by-attributes' style='margin-left: " + marginLeftSetting + "px;'></span>");
         }
     }
+
+    generatePaginationWidgetContent();
+
+    function generatePaginationWidgetContent() {
+        var spread = 3;
+        var offset = Math.floor((spread - 1) / 2);
+        var start = currentPage() - offset;
+        var end = currentPage() + offset;
+
+        // ensure sure start does not fall out of range
+        if (start <= 1) {
+            start = 1;
+        }
+
+        // ensure end does not fall out of range
+        if (end >= maxPages()) {
+            end = maxPages;
+        }
+
+        // ensure the middle bit always has 3 pages
+        var spreadCount = end - start;
+        var missingSpreadCount = spread - spreadCount;
+
+        if (spreadCount < spread) {
+            end += missingSpreadCount;
+        }
+        
+        var pages = [1]; // always put the first page in
+        for (var i = start; i <= end; i++) {
+            pages.push(i);
+        }
+        pages.push(maxPages());
+
+        var pagination = pages.filter(function(val, ind, arr) {
+            return arr.indexOf(val) == ind;
+        });
+
+        pagination.splice(1, 0, null);
+        pagination.splice(-1, 0, null);
+
+    }
+
 
     function getColumnHeadings() {
         var firstRow = gridData()[0];
@@ -101,18 +143,18 @@ function SimpleBootstrapDataGridViewModel(params) {
         friendlyColumnHeadings: friendlyColumnHeadings,
         getFriendlyColumnNameByIndex: getFriendlyColumnNameByIndex,
         gridData: gridData,
-        currentPage: self.currentPage,
-        maxPages: self.maxPages,
-        startRow: self.startRow,
+        currentPage: currentPage,
+        maxPages: maxPages,
+        startRow: startRow,
         endRow: endRow,
         listOfPageNumbers: listOfPageNumbers,
-        gotoPage: self.gotoPage,
+        gotoPage: gotoPage,
         resortByColumnName: resortByColumnName,
         sortBy: sortBy,
         sortIsDescending: sortIsDescending,
         columnWidth: columnWidth,
         showPagination: showPagination,
-        dynamicPaginationRange: self.dynamicPaginationRange
+        generatePaginationWidgetContent: generatePaginationWidgetContent
     }
 }
 
@@ -150,6 +192,8 @@ var simpleBootstrapDataGridComponent = {
                     </li>\
                 </ul>\
                 <p>Page <span data-bind="text: currentPage"></span> of <span data-bind="text: maxPages"></span></p>\
+            </div>\
+            <div class="row center" data-bind="visible: showPagination">\
             </div>\
         </div>\
         '
