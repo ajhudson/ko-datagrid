@@ -70,47 +70,30 @@ function SimpleBootstrapDataGridViewModel(params) {
         }
     }
 
-    generatePaginationWidgetContent();
+    var generatePaginationWidgetContent = function() {
 
-    function generatePaginationWidgetContent() {
-        var spread = 3;
-        var offset = Math.floor((spread - 1) / 2);
-        var start = currentPage() - offset;
-        var end = currentPage() + offset;
+        var spread = 3,
+            midMin = 0,
+            maxMin = 0;
 
-        // ensure sure start does not fall out of range
-        if (start <= 1) {
-            start = 1;
-        }
-
-        // ensure end does not fall out of range
-        if (end >= maxPages()) {
-            end = maxPages;
-        }
-
-        // ensure the middle bit always has 3 pages
-        var spreadCount = end - start;
-        var missingSpreadCount = spread - spreadCount;
-
-        if (spreadCount < spread) {
-            end += missingSpreadCount;
-        }
+        var currPage = currentPage();
+        var pagination = [1, null]; // 1st page and null
+        var yield = spread - 2;
         
-        var pages = [1]; // always put the first page in
-        for (var i = start; i <= end; i++) {
-            pages.push(i);
+        for (var i = 0; i < yield; i++) {
+            pagination.push(currPage - 1);
         }
-        pages.push(maxPages());
 
-        var pagination = pages.filter(function(val, ind, arr) {
-            return arr.indexOf(val) == ind;
-        });
+        pagination.push(currPage);
 
-        pagination.splice(1, 0, null);
-        pagination.splice(-1, 0, null);
+        for (var i = 0; i < yield; i++) {
+            pagination.push(currPage + 1);
+        }
 
+        pagination = pagination.concat([null, maxPages()]);
+
+        return pagination;
     }
-
 
     function getColumnHeadings() {
         var firstRow = gridData()[0];
@@ -154,7 +137,7 @@ function SimpleBootstrapDataGridViewModel(params) {
         sortIsDescending: sortIsDescending,
         columnWidth: columnWidth,
         showPagination: showPagination,
-        generatePaginationWidgetContent: generatePaginationWidgetContent
+        dpc: generatePaginationWidgetContent
     }
 }
 
@@ -164,6 +147,7 @@ var simpleBootstrapDataGridComponent = {
         '\
         <div class="container" data-bind="attr: { id: id }">\
             <div class="row">\
+                <p>Current page: <span data-bind="text: currentPage"></span>\
                 <p>Start row: <span data-bind="text: startRow"></span>. End row: <span data-bind="text: endRow"></span></p>\
                 <p>Sorted by: <span data-bind="text: sortBy().length ? sortBy : \'N/A\'"></span> (<span data-bind="text: sortIsDescending() === true? \'descending\' : \'ascending\'"></span>)</p>\
                 <p>Maximum pages: <span data-bind="text: maxPages"></span></p>\
@@ -188,12 +172,10 @@ var simpleBootstrapDataGridComponent = {
             <div class="row center" data-bind="visible: showPagination">\
                 <ul class="pagination" data-bind="foreach: listOfPageNumbers">\
                     <li data-bind="css: { \'active\': $parent.currentPage() == $data }">\
-                        <a href="#" data-bind="text: $data, click: function() { $parent.gotoPage($data); }"></a><li>\
+                        <a href="#" data-bind="text: $data, click: function() { $parent.gotoPage($data); }"></a>\
                     </li>\
                 </ul>\
                 <p>Page <span data-bind="text: currentPage"></span> of <span data-bind="text: maxPages"></span></p>\
-            </div>\
-            <div class="row center" data-bind="visible: showPagination">\
             </div>\
         </div>\
         '
